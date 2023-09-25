@@ -4,6 +4,9 @@ const express = require('express');
 // Instance
 const app = express();
 
+// Middlewares
+app.use(express.json()) //Read json objects
+
 // Variables
 const PORT = 3000;
 
@@ -24,12 +27,12 @@ app.get("/", (req, res) => {
     res.send("Home Page");
 });
 
-// GET Methods
+// GET Request
 app.get("/api/products", (req, res) => {
     res.send(products)
 })
 
-// Get Methods Filter
+// Get Request Filter
 app.get("/api/products/:productid", (req, res) => {
     const product = products.find(productElem => productElem.id == req.params.productid);
 
@@ -37,7 +40,19 @@ app.get("/api/products/:productid", (req, res) => {
         return res.status(404).send("Product Not Found");
     }
     res.send(product);
-})
+});
+
+app.post("/api/products", (req,res) => {
+    const product = {
+        id: products.length + 1,
+        name: req.body.name,
+        price: req.body.price
+    };
+    products.push(product);
+
+    res.send(product)
+});
+
 // Listen
 app.listen(PORT, _ => {
     console.log("http://localhost:"+PORT);
