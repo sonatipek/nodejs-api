@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "npx nodemon app.js"
+    "dev": "npx nodemon app.js",
+    "vercel-build": "echo helloworld"
   },
   "keywords": [],
   "author": "Sonat Saygın İpek",

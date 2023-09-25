@@ -17,3 +17,5 @@ app.get("/", (req, res) => {
 app.listen(PORT, _ => {
     console.log("http://localhost:"+PORT);
 })
+
+module.exports = app;
