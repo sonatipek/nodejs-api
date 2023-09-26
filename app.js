@@ -72,6 +72,38 @@ app.post("/api/products", (req,res) => {
     res.send(product)
 });
 
+app.put('/api/products/:productid', (req,res) => {
+    // Create validation rules
+    const scheme = new Joi.object({
+        name: Joi.string().min(3).max(60),
+        price: Joi.number().min(0)
+    });
+
+    const product = products.find(productElem => productElem.id == req.params.productid);
+    const { error } = scheme.validate(req.body); //with object destructuring
+
+    // If product not found
+    if (!product) {
+        return res.status(404).send("Product not found");
+    }
+
+    // If novalidate
+    if (error) {
+        return res.status(400).send(`${error.details[0].message}
+                        Your value: ${error.details[0].context.value}
+                        Your data type: ${typeof error.details[0].context.value}`);
+    }
+
+    // If validate
+    product.name = req.body.name || product.name;
+    product.price = req.body.price || product.price;
+
+    res.send(`Product has been saved!
+            New Name: ${product.name} 
+            New Price: ${product.price}`);
+
+})
+
 // Listen
 app.listen(PORT, _ => {
     console.log("http://localhost:"+PORT);
