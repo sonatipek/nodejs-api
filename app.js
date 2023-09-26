@@ -1,5 +1,6 @@
 // Node Modules
 const express = require('express');
+const Joi = require("joi");
 
 // Instance
 const app = express();
@@ -42,12 +43,30 @@ app.get("/api/products/:productid", (req, res) => {
     res.send(product);
 });
 
+// Post Request
 app.post("/api/products", (req,res) => {
+    // Create validation rules
+    const scheme = new Joi.object({
+        name: Joi.string().min(3).max(60).required(),
+        price: Joi.number().min(0).required()
+    });
+
+    const result = scheme.validate(req.body);
+
+    // If novalidate
+    if (result.error) {
+        return res.status(400).send(`${result.error.details[0].message}
+                        Your value: ${result.error.details[0].context.value}
+                        Your data type: ${typeof result.error.details[0].context.value}`);
+    }
+    
+    // If validate
     const product = {
         id: products.length + 1,
         name: req.body.name,
         price: req.body.price
     };
+
     products.push(product);
 
     res.send(product)
