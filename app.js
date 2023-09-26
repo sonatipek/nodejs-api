@@ -104,6 +104,21 @@ app.put('/api/products/:productid', (req,res) => {
 
 })
 
+
+app.delete('/api/products/:productid', (req,res) => {
+    const product = products.find(productElem => productElem.id == req.params.productid);
+
+    if (!product) {
+        return res.status(400).send('Procut not found');
+    }
+
+    const productIndex = products.indexOf(product);
+    products.splice(productIndex, 1);
+
+    res.send(product);
+});
+
+
 // Listen
 app.listen(PORT, _ => {
     console.log("http://localhost:"+PORT);
