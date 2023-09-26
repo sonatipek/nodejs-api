@@ -1,6 +1,9 @@
 // Node Modules
 const express = require('express');
-const Joi = require("joi");
+
+// Custom Modules
+const productRoutes = require('./routes/products');
+const homeRoutes = require('./routes/home');
 
 // Instance
 const app = express();
@@ -11,112 +14,13 @@ app.use(express.json()) //Read json objects
 // Variables
 const PORT = 3000;
 
-// Dummy Data
-const products = [
-    {id: 1, name: `iPhone 10`, price: 2000},
-    {id: 2, name: `iPhone 11`, price: 4000},
-    {id: 3, name: `iPhone 12`, price: 6000},
-    {id: 4, name: `iPhone 13`, price: 8000},
-    {id: 5, name: `iPhone 14`, price: 10000},
 
-];
+// -Routes-
+// Home Routes
+app.use("/", homeRoutes);
 
-
-// Routes
-// HTTP Methods: GET, POST, PUT, DELETE
-app.get("/", (req, res) => {
-    res.send("Home Page");
-});
-
-// GET Request
-app.get("/api/products", (req, res) => {
-    res.send(products)
-})
-
-// Get Request Filter
-app.get("/api/products/:productid", (req, res) => {
-    const product = products.find(productElem => productElem.id == req.params.productid);
-
-    if (!product) {
-        return res.status(404).send("Product Not Found");
-    }
-    res.send(product);
-});
-
-// Post Request
-app.post("/api/products", (req,res) => {
-    // Create validation rules
-    const scheme = new Joi.object({
-        name: Joi.string().min(3).max(60).required(),
-        price: Joi.number().min(0).required()
-    });
-
-    const result = scheme.validate(req.body);
-
-    // If novalidate
-    if (result.error) {
-        return res.status(400).send(`${result.error.details[0].message}
-                        Your value: ${result.error.details[0].context.value}
-                        Your data type: ${typeof result.error.details[0].context.value}`);
-    }
-    
-    // If validate
-    const product = {
-        id: products.length + 1,
-        name: req.body.name,
-        price: req.body.price
-    };
-
-    products.push(product);
-
-    res.send(product)
-});
-
-app.put('/api/products/:productid', (req,res) => {
-    // Create validation rules
-    const scheme = new Joi.object({
-        name: Joi.string().min(3).max(60),
-        price: Joi.number().min(0)
-    });
-
-    const product = products.find(productElem => productElem.id == req.params.productid);
-    const { error } = scheme.validate(req.body); //with object destructuring
-
-    // If product not found
-    if (!product) {
-        return res.status(404).send("Product not found");
-    }
-
-    // If novalidate
-    if (error) {
-        return res.status(400).send(`${error.details[0].message}
-                        Your value: ${error.details[0].context.value}
-                        Your data type: ${typeof error.details[0].context.value}`);
-    }
-
-    // If validate
-    product.name = req.body.name || product.name;
-    product.price = req.body.price || product.price;
-
-    res.send(`Product has been saved!
-            New Name: ${product.name} 
-            New Price: ${product.price}`);
-
-})
-
-
-app.delete('/api/products/:productid', (req,res) => {
-    const product = products.find(productElem => productElem.id == req.params.productid);
-
-    if (!product) {
-        return res.status(400).send('Procut not found');
-    }
-
-    const productIndex = products.indexOf(product);
-    products.splice(productIndex, 1);
-
-    res.send(product);
-});
+// Product Routes
+app.use("/api/products", productRoutes);
 
 
 // Listen
