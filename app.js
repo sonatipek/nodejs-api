@@ -44,6 +44,22 @@ mongoose.connect(process.env.MONGO_CONNECTION)
     .then(_ => console.log("MongoDB connection is succeeded."))
     .catch((err) => console.log(err))
 
+// MongoDB Schema
+const productSchema = new mongoose.Schema({
+    name: String,
+    price: Number,
+    description: String,
+    imageUrl: String,
+    date: {
+        type: Date,
+        default: Date.now
+    },
+    isActive: Boolean
+});
+
+const Product = mongoose.model('Product', productSchema);
+
+
 // Listen
 app.listen(PORT, _ => {
     console.log("http://localhost:"+PORT);
