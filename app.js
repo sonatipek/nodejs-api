@@ -1,6 +1,9 @@
 // Node Modules
 const express = require('express');
 const cors = require('cors');
+const mongoose = require('mongoose');
+
+require("dotenv").config();
 
 // Custom Modules
 const productRoutes = require('./routes/products');
@@ -36,6 +39,10 @@ app.use("/", homeRoutes);
 // Product Routes
 app.use("/api/products", productRoutes);
 
+// Mongo db connection
+mongoose.connect(process.env.MONGO_CONNECTION)
+    .then(_ => console.log("MongoDB connection is succeeded."))
+    .catch((err) => console.log(err))
 
 // Listen
 app.listen(PORT, _ => {
