@@ -5,16 +5,6 @@ const Joi = require("joi");
 // Router
 const router = express.Router();
 
-// Dummy Data
-const products = [
-    {id: 1, name: `iPhone 10`, price: 2000},
-    {id: 2, name: `iPhone 11`, price: 4000},
-    {id: 3, name: `iPhone 12`, price: 6000},
-    {id: 4, name: `iPhone 13`, price: 8000},
-    {id: 5, name: `iPhone 14`, price: 10000},
-
-];
-
 
 // ?Routes
 // *HTTP Methods: GET, POST, PUT, DELETE
