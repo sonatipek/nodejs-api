@@ -2,6 +2,9 @@
 const express = require('express');
 const Joi = require("joi");
 
+// Models
+const Product = require('../models/product');
+
 // Router
 const router = express.Router();
 
@@ -24,11 +27,14 @@ router.get("/:productid", (req, res) => {
 });
 
 // HTTP POST Request - CREATE Opreations
-router.post("/", (req,res) => {
+router.post("/", async (req,res) => {
     // Create validation rules
     const scheme = new Joi.object({
         name: Joi.string().min(3).max(60).required(),
-        price: Joi.number().min(0).required()
+        price: Joi.number().min(0).required(),
+        description: Joi.string().min(5).max(255).required(),
+        imageUrl: Joi.string().required(),
+        isActive: Joi.boolean().required()
     });
 
     const result = scheme.validate(req.body);
@@ -41,13 +47,14 @@ router.post("/", (req,res) => {
     }
     
     // If validate
-    const product = {
-        id: products.length + 1,
+    const product = new Product({
         name: req.body.name,
-        price: req.body.price
-    };
-
-    products.push(product);
+        price: req.body.price,
+        description: req.body.description,
+        imageUrl: req.body.imageUrl,
+        isActive: req.body.isActive
+    });
+    await product.save(); //mongoDB Save
 
     res.send(product)
 });
