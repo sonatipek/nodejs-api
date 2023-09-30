@@ -12,18 +12,35 @@ const router = express.Router();
 // ?Routes
 // *HTTP Methods: GET, POST, PUT, DELETE
 // GET Request |All Products| - SELECT Opreations
-router.get("/", (req, res) => {
-    res.send(products)
+router.get("/", async (req, res) => {
+    // You can use selected column by select() also  the .select() function is not mandatory
+    // column_name: 1 => selected | fetch all selected ones
+    // column_name: 0 => unselected | unselected ones are not fetched
+    // You can use a condition like "find({column: value})" 
+    // You can use a limit when fetching data like "limit(numberOfRecors)"
+
+    try {
+        const products = await Product.find({isActive: true})  
+            .select({name: 1, price: 1, description: 1, imageUrl: 1});
+
+        res.send(products)
+    } catch (err) {
+        console.error(err)
+    }
 })
 
 // HTTP GET Request |One Product| - Filter - SELECT Opreations
-router.get("/:productid", (req, res) => {
-    const product = products.find(productElem => productElem.id == req.params.productid);
+router.get("/:productid", async (req, res) => {
+    try {
+        // const product = await Product.findOne({_id: req.params.productid}); // you can use this way or 
+        const product = await Product.findById(req.params.productid) //this way
+            .select({__v: 0, date: 0}); 
 
-    if (!product) {
+        res.send(product);
+    } catch (err) {
+        console.error(err);
         return res.status(404).send("Product Not Found");
     }
-    res.send(product);
 });
 
 // HTTP POST Request - CREATE Opreations
