@@ -144,17 +144,20 @@ router.put('/:productid', async (req,res) => {
 })
 
 // HTTP Delete Request - DELETE Operations
-router.delete('/:productid', (req,res) => {
-    const product = products.find(productElem => productElem.id == req.params.productid);
+router.delete('/:productid', async (req,res) => {
+    //returns result, deleted row count etc.
+    // const result = await Product.deleteOne({_id: req.params.productid}); 
 
-    if (!product) {
-        return res.status(400).send('Procut not found');
+    try {
+        // returns deleted data
+        const product = await Product.findByIdAndDelete(req.params.productid);
+        
+        res.send(product);
+    } catch (err) {
+        console.error(err)
+        return res.status(404).send("Product not found");
     }
 
-    const productIndex = products.indexOf(product);
-    products.splice(productIndex, 1);
-
-    res.send(product);
 });
 
 
