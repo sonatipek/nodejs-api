@@ -77,35 +77,69 @@ router.post("/", async (req,res) => {
 });
 
 // HTTP PUT Request - UPDATE Operations
-router.put('/:productid', (req,res) => {
+router.put('/:productid', async (req,res) => {
     // Create validation rules
     const scheme = new Joi.object({
         name: Joi.string().min(3).max(60),
-        price: Joi.number().min(0)
+        price: Joi.number().min(0),
+        description: Joi.string().min(5).max(255),
+        imageUrl: Joi.string(),
+        isActive: Joi.boolean()
     });
 
-    const product = products.find(productElem => productElem.id == req.params.productid);
-    const { error } = scheme.validate(req.body); //with object destructuring
+    try {
+        //? You can use direct update query
+        /* const result = async Product.update({_id: req.params.productid}, {
+            $set: {
+                name: req.body.name,
+            }
+        }); */
+        // ? or you can use findByIdAndUpdate
+        /* const product = async Product.findByIdAndUpdate(req.params.productid, {
+            $set: {
+                name: req.body.name,
+            }
+        }, {new: true }); */
 
-    // If product not found
-    if (!product) {
-        return res.status(404).send("Product not found");
+        const { error } = scheme.validate(req.body); //with object destructuring
+        
+        // If novalidate
+        if (error) {
+            return res.status(400).send(`${error.details[0].message}
+            Your value: ${error.details[0].context.value}
+            Your data type: ${typeof error.details[0].context.value}`);
+        }
+
+        //? Query First - find byID => save
+        const product = await Product.findById(req.params.productid)
+        
+
+        // If validate save datas
+        product.name = req.body.name || product.name;
+        product.price = req.body.price || product.price;
+        product.description = req.body.description || product.description;
+        product.imageUrl = req.body.imageUrl || product.imageUrl;
+        product.isActive = req.body.isActive || product.isActive;
+        product.save();
+
+   
+
+    
+        res.send(`Product has been saved!
+                Name: ${product.name} 
+                Price: ${product.price}
+                Description: ${product.description}
+                Image URL: ${product.imageUrl}
+                Is Active: ${product.isActive}`);
+        
+
+    } catch (err) {
+        console.error(err)
+                
     }
 
-    // If novalidate
-    if (error) {
-        return res.status(400).send(`${error.details[0].message}
-                        Your value: ${error.details[0].context.value}
-                        Your data type: ${typeof error.details[0].context.value}`);
-    }
 
-    // If validate
-    product.name = req.body.name || product.name;
-    product.price = req.body.price || product.price;
 
-    res.send(`Product has been saved!
-            New Name: ${product.name} 
-            New Price: ${product.price}`);
 
 })
 
