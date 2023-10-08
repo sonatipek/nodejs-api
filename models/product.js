@@ -1,8 +1,8 @@
 // Node Modules
-const mongoose = require('mongoose');
+const {mongoose, Schema} = require('mongoose');
 
 // Create Schema 
-const productSchema = new mongoose.Schema({
+const productSchema = new Schema({
     name: String,
     price: Number,
     description: String,
@@ -11,7 +11,8 @@ const productSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    isActive: Boolean
+    isActive: Boolean,
+    categoryId: {type: Schema.Types.ObjectId, ref: "Category"} //reference type relation
 });
 
 // Create Model

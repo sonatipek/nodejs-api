@@ -21,7 +21,8 @@ router.get("/", async (req, res) => {
 
     try {
         const products = await Product.find({isActive: true})  
-            .select({name: 1, price: 1, description: 1, imageUrl: 1});
+            .select({name: 1, price: 1, description: 1, imageUrl: 1})
+            .populate("categoryId", "name -_id"); //for relations
 
         res.send(products)
     } catch (err) {
@@ -51,7 +52,8 @@ router.post("/", async (req,res) => {
         price: Joi.number().min(0).required(),
         description: Joi.string().min(5).max(255).required(),
         imageUrl: Joi.string().required(),
-        isActive: Joi.boolean().required()
+        isActive: Joi.boolean().required(),
+        categoryId: Joi.string().required()
     });
 
     const result = scheme.validate(req.body);
@@ -69,7 +71,8 @@ router.post("/", async (req,res) => {
         price: req.body.price,
         description: req.body.description,
         imageUrl: req.body.imageUrl,
-        isActive: req.body.isActive
+        isActive: req.body.isActive,
+        categoryId: req.body.categoryId
     });
     await product.save(); //mongoDB Save
 

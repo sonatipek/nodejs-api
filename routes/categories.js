@@ -12,7 +12,8 @@ const router = express.Router();
 router.get('/', async (req, res) => {
     try {
         const categories = await Category.find({isActive: true})
-            .select({name: 1});
+            .select({name: 1})
+            .populate("products", "name price -_id");
 
         res.send(categories)
     } catch (err) {
@@ -38,7 +39,8 @@ router.post('/', async (req, res) => {
     // validation rules
     const scheme = new Joi.object({
         name: Joi.string().min(3).max(60).required(),
-        isActive: Joi.boolean().required()
+        isActive: Joi.boolean().required(),
+        products: Joi.array().required()
     });
 
     const { error } = scheme.validate(req.body);
@@ -51,7 +53,8 @@ router.post('/', async (req, res) => {
 
     const newCategory = new Category({
         name: req.body.name,
-        isActive: req.body.isActive
+        isActive: req.body.isActive,
+        products: req.body.products
     });
     await newCategory.save();
 
