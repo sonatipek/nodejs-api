@@ -7,6 +7,7 @@ require("dotenv").config();
 
 // Custom Modules
 const productRoutes = require('./routes/products');
+const categoryRoutes = require('./routes/categories');
 const homeRoutes = require('./routes/home');
 
 // Instance
@@ -38,6 +39,7 @@ app.use("/", homeRoutes);
 
 // Product Routes
 app.use("/api/products", productRoutes);
+app.use("/api/categories", categoryRoutes);
 
 // Mongo db connection
 mongoose.connect(process.env.MONGO_CONNECTION)

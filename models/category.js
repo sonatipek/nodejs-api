@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 
 // Create Schema 
 const categorySchema = new mongoose.Schema({
-    name: String
+    name: String,
+    isActive: Boolean
 });
 
 // Create Model
