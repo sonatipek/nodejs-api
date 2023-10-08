@@ -89,13 +89,13 @@ router.put('/:productid', async (req,res) => {
 
     try {
         //? You can use direct update query
-        /* const result = async Product.update({_id: req.params.productid}, {
+        /* const result = await Product.update({_id: req.params.productid}, {
             $set: {
                 name: req.body.name,
             }
         }); */
         // ? or you can use findByIdAndUpdate
-        /* const product = async Product.findByIdAndUpdate(req.params.productid, {
+        /* const product = await Product.findByIdAndUpdate(req.params.productid, {
             $set: {
                 name: req.body.name,
             }
