@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 
 // Middlewares
 const auth = require('../middleware/auth');
+const authorization = require('../middleware/authorization');
 
 // Models
 const User = require('../models/user');
@@ -28,7 +29,47 @@ router.get('/', auth, async (req, res) => {
     }
 })
 
-// api/users/create: POST
+// api/users/:userid : PUT
+router.put('/:userid', [auth, authorization], async (req,res) => {
+    // validation rules
+    const scheme = new Joi.object({
+        isAdmin: Joi.boolean().required()
+    });
+    const { error } = scheme.validate(req.body);
+
+
+    // If novalidate
+    if (error) {
+        return res.status(400).send(`${error.details[0].message}
+        Your value: ${error.details[0].context.value}
+        Your data type: ${typeof error.details[0].context.value}`);
+    }
+
+    try {
+        const updatedUser = await User.findByIdAndUpdate(req.params.userid, {
+            $set: {
+                isAdmin: req.body.isAdmin
+            }
+        }, {new: true});
+
+        res.send(updatedUser)
+    } catch (err) {
+        console.log(err)
+    }
+});
+
+// api/user/:userid : DELETE
+router.delete('/:userid', [auth, authorization], async (req,res) => {
+    try {
+        const deletedUser = await User.findByIdAndDelete(req.params.userid);
+
+        res.send(deletedUser)
+    } catch (err) {
+        console.log(err)
+    }
+});
+
+// api/users/create: POST (Register)
 router.post('/create', async (req, res) => {
     // Create validation rules
     const scheme = new Joi.object({
@@ -73,7 +114,7 @@ router.post('/create', async (req, res) => {
     }
 });
 
-// api/user/auth: POST
+// api/users/auth: POST (Login)
 router.post('/auth', async (req,res) => {
     // Create validation rules
     const scheme = new Joi.object({
@@ -113,8 +154,6 @@ router.post('/auth', async (req,res) => {
         console.log(err)
     }
 });
-
-// !TODO: Add delete and put requests
 
 
 module.exports = router;
