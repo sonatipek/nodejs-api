@@ -1,6 +1,6 @@
 // Node Modules
 const {mongoose, Schema} = require('mongoose');
-
+const jwt = require('jsonwebtoken');
 // Create Schema 
 const userSchema = new Schema({
     username: {
@@ -17,6 +17,11 @@ const userSchema = new Schema({
         required: true
     }
 }, {timestamps: true});
+
+// Create methods
+userSchema.methods.createAuthToken = () => {
+    return jwt.sign({_id: this._id}, 'jwtPrivateKey');
+}
 
 // Create Model
 const User = mongoose.model('User', userSchema);

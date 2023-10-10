@@ -3,6 +3,9 @@ const express = require('express');
 const Joi = require('joi');
 const bcrypt = require('bcrypt');
 
+// Middlewares
+const auth = require('../middleware/auth');
+
 // Models
 const User = require('../models/user');
 
@@ -11,7 +14,7 @@ const router = express.Router();
 
 // Routes
 // api/users : GET
-router.get('/', async (req, res) => {
+router.get('/', auth, async (req, res) => {
     try {
         const user = await User.find();
 
@@ -25,8 +28,8 @@ router.get('/', async (req, res) => {
     }
 })
 
-// api/user: POST
-router.post('/', async (req, res) => {
+// api/users/create: POST
+router.post('/create', async (req, res) => {
     // Create validation rules
     const scheme = new Joi.object({
         username: Joi.string().min(3).max(30).required(),
@@ -61,8 +64,10 @@ router.post('/', async (req, res) => {
         });
         await newUser.save(); //mongoDB Save
 
-        //send response
-        res.send(newUser)
+        //send token & response
+        const token = newUser.createAuthToken(); 
+        res.header("X-Auth-Token", token).send(newUser);//send token in header
+    
     } catch (err) {
         console.log(err)
     }
@@ -96,7 +101,9 @@ router.post('/auth', async (req,res) => {
         
         // If email found, check password
         if (await bcrypt.compare(req.body.password, user.password)) {
-            res.send("Login successful")
+            //if auth is success, create token and send it
+            const token = user.createAuthToken(); 
+            res.header("X-Auth-Token", token).send(token) //send token in header
 
         } else {
             return res.status(400).send("Login failed, you entered your password incorrectly");

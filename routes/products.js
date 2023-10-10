@@ -2,6 +2,9 @@
 const express = require('express');
 const Joi = require("joi");
 
+// Middlewares
+const auth = require('../middleware/auth');
+
 // Models
 const Product = require('../models/product');
 
@@ -45,7 +48,7 @@ router.get("/:productid", async (req, res) => {
 });
 
 // HTTP POST Request - CREATE Opreations
-router.post("/", async (req,res) => {
+router.post("/", auth, async (req,res) => {
     // Create validation rules
     const scheme = new Joi.object({
         name: Joi.string().min(3).max(60).required(),
@@ -80,7 +83,7 @@ router.post("/", async (req,res) => {
 });
 
 // HTTP PUT Request - UPDATE Operations
-router.put('/:productid', async (req,res) => {
+router.put('/:productid', auth, async (req,res) => {
     // Create validation rules
     const scheme = new Joi.object({
         name: Joi.string().min(3).max(60),
@@ -147,7 +150,7 @@ router.put('/:productid', async (req,res) => {
 })
 
 // HTTP Delete Request - DELETE Operations
-router.delete('/:productid', async (req,res) => {
+router.delete('/:productid', auth, async (req,res) => {
     //returns result, deleted row count etc.
     // const result = await Product.deleteOne({_id: req.params.productid}); 
 

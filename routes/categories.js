@@ -2,6 +2,9 @@
 const express = require('express');
 const Joi = require('joi');
 
+// Middlewares
+const auth = require('../middleware/auth');
+
 // Models
 const Category = require('../models/category');
 
@@ -35,7 +38,7 @@ router.get('/:categoryid', async (req,res) => {
     }
 })
 
-router.post('/', async (req, res) => {
+router.post('/', auth, async (req, res) => {
     // validation rules
     const scheme = new Joi.object({
         name: Joi.string().min(3).max(60).required(),
@@ -61,7 +64,7 @@ router.post('/', async (req, res) => {
     res.send(newCategory)
 })
 
-router.put('/:categoryid', async (req, res) => {
+router.put('/:categoryid', auth, async (req, res) => {
     // validation rules
     const scheme = new Joi.object({
         name: Joi.string().min(3).max(60),
@@ -90,7 +93,7 @@ router.put('/:categoryid', async (req, res) => {
     }
 });
 
-router.delete('/:categoryid', async (req, res) => {
+router.delete('/:categoryid', auth, async (req, res) => {
     try {
         const category = await Category.findByIdAndDelete(req.params.categoryid);
 
