@@ -15,12 +15,16 @@ const userSchema = new Schema({
     password: {
         type: String,
         required: true
+    },
+    isAdmin:{
+        type: Boolean,
+        required: true
     }
 }, {timestamps: true});
 
 // Create methods
-userSchema.methods.createAuthToken = () => {
-    return jwt.sign({_id: this._id}, 'jwtPrivateKey');
+userSchema.methods.createAuthToken = function(){
+    return jwt.sign({_id: this._id, isAdmin: this.isAdmin}, 'jwtPrivateKey');
 }
 
 // Create Model

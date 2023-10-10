@@ -4,6 +4,7 @@ const Joi = require('joi');
 
 // Middlewares
 const auth = require('../middleware/auth');
+const authorization = require('../middleware/authorization');
 
 // Models
 const Category = require('../models/category');
@@ -93,7 +94,7 @@ router.put('/:categoryid', auth, async (req, res) => {
     }
 });
 
-router.delete('/:categoryid', auth, async (req, res) => {
+router.delete('/:categoryid', [auth, authorization], async (req, res) => {
     try {
         const category = await Category.findByIdAndDelete(req.params.categoryid);
 

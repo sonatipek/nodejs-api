@@ -4,6 +4,7 @@ const Joi = require("joi");
 
 // Middlewares
 const auth = require('../middleware/auth');
+const authorization = require('../middleware/authorization');
 
 // Models
 const Product = require('../models/product');
@@ -150,7 +151,7 @@ router.put('/:productid', auth, async (req,res) => {
 })
 
 // HTTP Delete Request - DELETE Operations
-router.delete('/:productid', auth, async (req,res) => {
+router.delete('/:productid', [auth, authorization], async (req,res) => {
     //returns result, deleted row count etc.
     // const result = await Product.deleteOne({_id: req.params.productid}); 
 

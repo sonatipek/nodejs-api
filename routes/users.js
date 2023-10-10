@@ -114,5 +114,7 @@ router.post('/auth', async (req,res) => {
     }
 });
 
+// !TODO: Add delete and put requests
+
 
 module.exports = router;
