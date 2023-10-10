@@ -68,4 +68,44 @@ router.post('/', async (req, res) => {
     }
 });
 
+// api/user/auth: POST
+router.post('/auth', async (req,res) => {
+    // Create validation rules
+    const scheme = new Joi.object({
+        email: Joi.string().email().required(),
+        password: Joi.string().required()
+    });
+    
+    // If novalidate
+    const { error } = scheme.validate(req.body);
+    if (error) {
+        return res.status(400).send(`${error.details[0].message}
+                        Your value: ${error.details[0].context.value}
+                        Your data type: ${typeof error.details[0].context.value}`);
+    }
+
+    // If validate
+    try {
+        // Check email
+        const user = await User.findOne({email: req.body.email});
+
+        // If email not found
+        if (!user) {
+            return res.status(400).send("No user registered with this email was found");
+        }
+        
+        // If email found, check password
+        if (await bcrypt.compare(req.body.password, user.password)) {
+            res.send("Login successful")
+
+        } else {
+            return res.status(400).send("Login failed, you entered your password incorrectly");
+        }
+        
+    } catch (err) {
+        console.log(err)
+    }
+});
+
+
 module.exports = router;
