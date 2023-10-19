@@ -16,7 +16,7 @@ const router = express.Router();
 // ?Routes
 // *HTTP Methods: GET, POST, PUT, DELETE
 // GET Request |All Products| - SELECT Opreations
-router.get("/", async (req, res) => {
+router.get("/", async (req, res, next) => {
     // You can use selected column by select() also  the .select() function is not mandatory
     // column_name: 1 => selected | fetch all selected ones
     // column_name: 0 => unselected | unselected ones are not fetched
@@ -30,6 +30,7 @@ router.get("/", async (req, res) => {
 
         res.send(products)
     } catch (err) {
+        next(err);
         console.error(err)
     }
 })
@@ -44,57 +45,63 @@ router.get("/:productid", async (req, res) => {
         res.send(product);
     } catch (err) {
         console.error(err);
-        return res.status(404).send("Product Not Found");
+        return res.status(404).send("Product not found")
+
     }
 });
 
 // HTTP POST Request - CREATE Opreations
-router.post("/", auth, async (req,res) => {
-    // Create validation rules
-    const scheme = new Joi.object({
-        name: Joi.string().min(3).max(60).required(),
-        price: Joi.number().min(0).required(),
-        description: Joi.string().min(5).max(255).required(),
-        imageUrl: Joi.string().required(),
-        isActive: Joi.boolean().required(),
-        categoryId: Joi.string().required()
-    });
-
-    const result = scheme.validate(req.body);
-
-    // If novalidate
-    if (result.error) {
-        return res.status(400).send(`${result.error.details[0].message}
-                        Your value: ${result.error.details[0].context.value}
-                        Your data type: ${typeof result.error.details[0].context.value}`);
-    }
+router.post("/", auth, async (req,res, next) => {
+    try {
+        // Create validation rules
+        const scheme = new Joi.object({
+            name: Joi.string().min(3).max(60).required(),
+            price: Joi.number().min(0).required(),
+            description: Joi.string().min(5).max(255).required(),
+            imageUrl: Joi.string().required(),
+            isActive: Joi.boolean().required(),
+            categoryId: Joi.string().required()
+        });
     
-    // If validate
-    const product = new Product({
-        name: req.body.name,
-        price: req.body.price,
-        description: req.body.description,
-        imageUrl: req.body.imageUrl,
-        isActive: req.body.isActive,
-        categoryId: req.body.categoryId
-    });
-    await product.save(); //mongoDB Save
-
-    res.send(product)
+        const result = scheme.validate(req.body);
+    
+        // If novalidate
+        if (result.error) {
+            return res.status(400).send(`${result.error.details[0].message}
+                            Your value: ${result.error.details[0].context.value}
+                            Your data type: ${typeof result.error.details[0].context.value}`);
+        }
+        
+        // If validate
+        const product = new Product({
+            name: req.body.name,
+            price: req.body.price,
+            description: req.body.description,
+            imageUrl: req.body.imageUrl,
+            isActive: req.body.isActive,
+            categoryId: req.body.categoryId
+        });
+        await product.save(); //mongoDB Save
+    
+        res.send(product)
+        
+    } catch (err) {
+        next(err)
+    }
 });
 
 // HTTP PUT Request - UPDATE Operations
-router.put('/:productid', auth, async (req,res) => {
-    // Create validation rules
-    const scheme = new Joi.object({
-        name: Joi.string().min(3).max(60),
-        price: Joi.number().min(0),
-        description: Joi.string().min(5).max(255),
-        imageUrl: Joi.string(),
-        isActive: Joi.boolean()
-    });
-
+router.put('/:productid', auth, async (req,res, next) => {
     try {
+        // Create validation rules
+        const scheme = new Joi.object({
+            name: Joi.string().min(3).max(60),
+            price: Joi.number().min(0),
+            description: Joi.string().min(5).max(255),
+            imageUrl: Joi.string(),
+            isActive: Joi.boolean()
+        });
+
         //? You can use direct update query
         /* const result = await Product.update({_id: req.params.productid}, {
             $set: {
@@ -142,13 +149,11 @@ router.put('/:productid', auth, async (req,res) => {
 
     } catch (err) {
         console.error(err)
+        next(err)
                 
     }
 
-
-
-
-})
+});
 
 // HTTP Delete Request - DELETE Operations
 router.delete('/:productid', [auth, authorization], async (req,res) => {

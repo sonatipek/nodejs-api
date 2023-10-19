@@ -15,7 +15,7 @@ const router = express.Router();
 
 // Routes
 // api/users : GET
-router.get('/', auth, async (req, res) => {
+router.get('/', auth, async (req, res, next) => {
     try {
         const user = await User.find();
 
@@ -26,26 +26,26 @@ router.get('/', auth, async (req, res) => {
         res.send(user)
     } catch (err) {
         console.log(err);
+        next(err)
     }
 })
 
 // api/users/:userid : PUT
-router.put('/:userid', [auth, authorization], async (req,res) => {
-    // validation rules
-    const scheme = new Joi.object({
-        isAdmin: Joi.boolean().required()
-    });
-    const { error } = scheme.validate(req.body);
-
-
-    // If novalidate
-    if (error) {
-        return res.status(400).send(`${error.details[0].message}
-        Your value: ${error.details[0].context.value}
-        Your data type: ${typeof error.details[0].context.value}`);
-    }
-
+router.put('/:userid', [auth, authorization], async (req,res, next) => { 
     try {
+        // validation rules
+        const scheme = new Joi.object({
+            isAdmin: Joi.boolean().required()
+        });
+        const { error } = scheme.validate(req.body);
+    
+    
+        // If novalidate
+        if (error) {
+            return res.status(400).send(`${error.details[0].message}
+            Your value: ${error.details[0].context.value}
+            Your data type: ${typeof error.details[0].context.value}`);
+        }
         const updatedUser = await User.findByIdAndUpdate(req.params.userid, {
             $set: {
                 isAdmin: req.body.isAdmin
@@ -55,6 +55,7 @@ router.put('/:userid', [auth, authorization], async (req,res) => {
         res.send(updatedUser)
     } catch (err) {
         console.log(err)
+        next(err)
     }
 });
 
@@ -66,28 +67,29 @@ router.delete('/:userid', [auth, authorization], async (req,res) => {
         res.send(deletedUser)
     } catch (err) {
         console.log(err)
+        return res.status(404).send("User not found");
     }
 });
 
 // api/users/create: POST (Register)
-router.post('/create', async (req, res) => {
-    // Create validation rules
-    const scheme = new Joi.object({
-        username: Joi.string().min(3).max(30).required(),
-        email: Joi.string().email().required(),
-        password: Joi.string().min(6).max(255).required(),
-    });
-    
-    // If novalidate
-    const { error } = scheme.validate(req.body);
-    if (error) {
-        return res.status(400).send(`${error.details[0].message}
-                        Your value: ${error.details[0].context.value}
-                        Your data type: ${typeof error.details[0].context.value}`);
-    }
-    
+router.post('/create', async (req, res, next) => { 
     // If validate
     try {
+        // Create validation rules
+        const scheme = new Joi.object({
+            username: Joi.string().min(3).max(30).required(),
+            email: Joi.string().email().required(),
+            password: Joi.string().min(6).max(255).required(),
+        });
+        
+        // If novalidate
+        const { error } = scheme.validate(req.body);
+        if (error) {
+            return res.status(400).send(`${error.details[0].message}
+                            Your value: ${error.details[0].context.value}
+                            Your data type: ${typeof error.details[0].context.value}`);
+        }
+
         // Email Control
         const user = await User.findOne({email: req.body.email});
         if (user) {
@@ -110,28 +112,29 @@ router.post('/create', async (req, res) => {
         res.header("X-Auth-Token", token).send(newUser);//send token in header
     
     } catch (err) {
-        console.log(err)
+        console.log(err);
+        next(err);
     }
 });
 
 // api/users/auth: POST (Login)
-router.post('/auth', async (req,res) => {
-    // Create validation rules
-    const scheme = new Joi.object({
-        email: Joi.string().email().required(),
-        password: Joi.string().required()
-    });
-    
-    // If novalidate
-    const { error } = scheme.validate(req.body);
-    if (error) {
-        return res.status(400).send(`${error.details[0].message}
-                        Your value: ${error.details[0].context.value}
-                        Your data type: ${typeof error.details[0].context.value}`);
-    }
-
-    // If validate
+router.post('/auth', async (req,res, next) => {
     try {
+        // Create validation rules
+        const scheme = new Joi.object({
+            email: Joi.string().email().required(),
+            password: Joi.string().required()
+        });
+        
+        // If novalidate
+        const { error } = scheme.validate(req.body);
+        if (error) {
+            return res.status(400).send(`${error.details[0].message}
+                            Your value: ${error.details[0].context.value}
+                            Your data type: ${typeof error.details[0].context.value}`);
+        }
+    
+        // If validate
         // Check email
         const user = await User.findOne({email: req.body.email});
 
@@ -151,7 +154,8 @@ router.post('/auth', async (req,res) => {
         }
         
     } catch (err) {
-        console.log(err)
+        console.log(err);
+        next(err);
     }
 });
 

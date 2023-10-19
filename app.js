@@ -10,6 +10,7 @@ const productRoutes = require('./routes/products');
 const categoryRoutes = require('./routes/categories');
 const userRoutes = require('./routes/users');
 const homeRoutes = require('./routes/home');
+const errorMiddleware = require('./middleware/error');
 
 // Instance
 const app = express();
@@ -42,6 +43,9 @@ app.use("/", homeRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/users", userRoutes);
+
+// Error middleware *error middleware should be under all routes*
+app.use(errorMiddleware)
 
 // Mongo db connection
 mongoose.connect(process.env.MONGO_CONNECTION)
