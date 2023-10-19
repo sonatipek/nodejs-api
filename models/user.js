@@ -1,6 +1,7 @@
 // Node Modules
 const {mongoose, Schema} = require('mongoose');
 const jwt = require('jsonwebtoken');
+
 // Create Schema 
 const userSchema = new Schema({
     username: {
