@@ -11,6 +11,7 @@ const categoryRoutes = require('./routes/categories');
 const userRoutes = require('./routes/users');
 const homeRoutes = require('./routes/home');
 const errorMiddleware = require('./middleware/error');
+const winston = require('./middleware/winston');
 
 // Instance
 const app = express();
@@ -49,7 +50,7 @@ app.use(errorMiddleware)
 
 // Mongo db connection
 mongoose.connect(process.env.MONGO_CONNECTION)
-    .then(_ => console.log("MongoDB connection is succeeded."))
+    .then(_ => winston.info("MongoDB connection is succeeded."))
     .catch((err) => console.log(err));
 
 

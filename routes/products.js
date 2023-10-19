@@ -24,6 +24,7 @@ router.get("/", async (req, res, next) => {
     // You can use a limit when fetching data like "limit(numberOfRecors)"
 
     try {
+        throw new Error("hata")
         const products = await Product.find({isActive: true})  
             .select({name: 1, price: 1, description: 1, imageUrl: 1})
             .populate("categoryId", "name -_id"); //for relations
