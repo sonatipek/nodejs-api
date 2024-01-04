@@ -59,7 +59,7 @@ router.post('/', auth, async (req, res, next) => {
     
         const newCategory = new Category({
             name: req.body.name,
-            isActive: req.body.isActive,
+            isActive: req.body.isActive,   
             products: req.body.products
         });
         await newCategory.save();
